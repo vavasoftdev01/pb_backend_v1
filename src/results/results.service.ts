@@ -1,15 +1,24 @@
 import { Injectable } from '@nestjs/common';
 import { CreateResultDto } from './dto/create-result.dto';
 import { UpdateResultDto } from './dto/update-result.dto';
+import { DataSource } from 'typeorm';
+import { Result } from './entities/result.entity';
 
 @Injectable()
 export class ResultsService {
+  private resultRepository;
+
+  constructor(private dataSource: DataSource) {
+    this.resultRepository = this.dataSource.getRepository(Result)
+  }
+
+
   create(createResultDto: CreateResultDto) {
     return 'This action adds a new result';
   }
 
-  findAll() {
-    return `This action returns all results`;
+   findAll() {
+    return this.resultRepository.find();
   }
 
   findOne(id: number) {
