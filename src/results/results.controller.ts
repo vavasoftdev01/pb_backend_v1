@@ -9,7 +9,7 @@ export class ResultsController {
   constructor(private readonly resultsService: ResultsService) {}
 
   @Get('/generate')
-  generateResult() {
+  generateResult(@Res() res: Response) {
     let draw_results = this.uniqueRNG(28, 6)
     // check if all results are double digit hence the powerball should be not greater than 9
     const checker = draw_results.every((element) => {
@@ -18,26 +18,45 @@ export class ResultsController {
 
     if(checker) {
       draw_results.pop()
-      draw_results.push({'powerball' :this.uniqueRNG(9, 1)[0]})
+      draw_results.unshift({'powerball' : this.uniqueRNG(9, 1)[0]})
     }
 
     // Assign powerball to the first element that is <= 10.
     for (let index = 0; index < draw_results.length; index++) {
       if(draw_results[index] <= 9) {
         let cont = draw_results[index]
-        draw_results[index] = {'powerball_def': cont}
+        draw_results[index] = {'powerball': cont}
         break;
       }
     }
 
-    return draw_results;
+    const formatted_results = []
+    draw_results.forEach((element) => {
+      if(element.hasOwnProperty('powerball')) {
+        formatted_results.unshift(element)
+      } else {
+        formatted_results.push({'normal_ball':element})
+      }
+    });
+
+    
+
+    res.status(HttpStatus.OK).json({'data': formatted_results});
+
   }
+
+  /**
+   * UNique Random Number Generator
+   * @param max_number_limit 
+   * @param iteration 
+   * @returns array
+   */
 
   private uniqueRNG(max_number_limit, iteration) {
     const results = [];
     let unique_results = []
     // Draw results ..
-    for (let index = 1; index <= 15; index++) {
+    for (let index = 1; index <= 12; index++) {
       results.push(Math.floor(Math.random() * max_number_limit) + 1)
       // Unique
       unique_results = [... new Set(results)]
