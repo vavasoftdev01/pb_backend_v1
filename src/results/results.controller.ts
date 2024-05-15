@@ -1,15 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { ResultsService } from './results.service';
 import { CreateResultDto } from './dto/create-result.dto';
 import { UpdateResultDto } from './dto/update-result.dto';
-import { Response } from 'express';
+
 
 @Controller('results')
 export class ResultsController {
   constructor(private readonly resultsService: ResultsService) {}
 
   @Get('/generate')
-  generateResult(@Res() res: Response) {
+  generateResult() {
     let draw_results = this.uniqueRNG(28, 6)
     // check if all results are double digit hence the powerball should be not greater than 9
     const checker = draw_results.every((element) => {
@@ -31,18 +31,23 @@ export class ResultsController {
     }
 
     const formatted_results = []
+    let num_sum = 0;
     draw_results.forEach((element) => {
       if(element.hasOwnProperty('powerball')) {
         formatted_results.unshift(element)
       } else {
-        formatted_results.push({'normal_ball':element})
+        num_sum += element;
+        formatted_results.push({'normal_ball':String(element)})
       }
     });
 
-    
+    formatted_results.push({
+      'num_sum': String(num_sum),
+      'num_sum_odd': (num_sum%2 == 0 ? 'E': 'O'),
+      'pb_odd': (formatted_results[0]['powerball']%2 == 0 ? 'E': 'O')
+    })
 
-    res.status(HttpStatus.OK).json({'data': formatted_results});
-
+    return this.resultsService.saveResults(formatted_results);
   }
 
   /**

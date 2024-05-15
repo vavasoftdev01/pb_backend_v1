@@ -12,7 +12,7 @@ export class Result {
     id: number;
 
     @Column({ nullable: true})
-    round: string;
+    round: number;
 
     @Column({ nullable: true })
     dt: string;
@@ -55,15 +55,15 @@ export class Result {
 
     // Date Constraints..
     @Column({ nullable: true, type: 'date' })
-    regdate: string;
+    regdate: Date;
 
     @Column({ nullable: true, type: 'date' })
-    modifydate: string;
+    modifydate: Date;
 
     @Column({ nullable: true, type: 'date' })
-    accountdate: string;
+    accountdate: Date;
 
     @Column({ nullable: true, type: 'date' })
-    void: string;
+    void: Date;
 
 }
