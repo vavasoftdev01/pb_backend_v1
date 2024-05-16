@@ -19,7 +19,7 @@ import { Global, Module } from '@nestjs/common';
             password: process.env.DATABASE_PASSWORD,
             database: process.env.DATABASE_NAME,
             entities: [__dirname + '/../**/*.entity.{js,ts}'],
-            synchronize: false, //use this with development enviroment
+            synchronize: false, //use this with development environment
             options: { encrypt: false },
           });
           await dataSource.initialize(); // initialize the data source

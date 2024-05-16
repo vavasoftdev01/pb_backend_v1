@@ -46,7 +46,7 @@ export class ResultsController {
       'num_sum_odd': (num_sum%2 == 0 ? 'E': 'O'),
       'pb_odd': (formatted_results[0]['powerball']%2 == 0 ? 'E': 'O')
     })
-
+    
     return this.resultsService.saveResults(formatted_results);
   }
 
