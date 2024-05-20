@@ -1,11 +1,13 @@
 import { WebSocketGateway, SubscribeMessage, MessageBody, WebSocketServer, OnGatewayInit } from '@nestjs/websockets';
 import { GametimerService } from './gametimer.service';
 import {Socket, Server} from 'socket.io';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @WebSocketGateway({
   cors: {
     origin: '*'
-  }
+  },
+  namespace: 'timer'
 })
 export class GametimerGateway implements OnGatewayInit {
   @WebSocketServer()
@@ -18,7 +20,7 @@ export class GametimerGateway implements OnGatewayInit {
   timer_status: string = 'betting_open'; //Timer State
   dynamic_timer: number;
 
-  constructor(private readonly gametimerService: GametimerService) {}
+  constructor(private readonly gametimerService: GametimerService, private eventEmitter: EventEmitter2) {}
 
   afterInit(server: any) {
     this.start(this.betting_open_time_limit);
@@ -47,12 +49,18 @@ export class GametimerGateway implements OnGatewayInit {
         case 'betting_closed':
           this.timer_status = 'draw_result';
           clearInterval(timer_id);
+
+          this.eventEmitter.emit('insert.inital-results');
+
           this.start(this.draw_result_time_limit)
         break;
 
         case 'draw_result':
           this.timer_status = 'betting_open';
           clearInterval(timer_id);
+
+          this.eventEmitter.emit('update.insert-results');
+
           this.start(this.betting_open_time_limit)
         break;
       
