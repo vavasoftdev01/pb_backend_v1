@@ -7,7 +7,6 @@ import { OnEvent } from '@nestjs/event-emitter';
 import * as moment from "moment-timezone";
 
 
-
 @WebSocketGateway({
   cors: {
     origin: '*'
@@ -44,9 +43,6 @@ export class DrawResultsGateway {
     const date = new Date();
     const end_date = moment(new Date(date.getTime() + parseInt(process.env.GAME_TIMER_SETTING) * 60000)).tz(process.env.APP_TIMEZONE);
 
-    console.log(moment(end_date).tz(process.env.APP_TIMEZONE).format('HH:mm:00'));
-    console.log(`reg ${date_now.format('YYYY-MM-DD HH:mm:00')}`)
-
     const data = {
       'game': process.env.APP_NAME,
       'id': cont['id'] + 1,
@@ -55,18 +51,51 @@ export class DrawResultsGateway {
       'sdate': String(date_now.format('HH:mm:00')),
       'edate': String(end_date.format('HH:mm:00')),
       'regdate': date_now.format('YYYY-MM-DD HH:mm:00'),
-      //'modify_date': `${date_now.format('YYYY-MM-DD')} ${date_now.format('HH:mm:00')}`
     };
 
     this.last_inserted_id = await this.drawResultsService.create(data);
   }
 
 
-  @OnEvent('update.insert-results', { async: true})
-  update(@MessageBody() updateDrawResultDto: UpdateDrawResultDto) {
-    console.log('update - insert results');
+  @OnEvent('update.insert-results')
+  async update(@MessageBody() updateDrawResultDto: UpdateDrawResultDto) {
+    const result = await this.drawResultsService.generateResults(5, 29, 1, 9);
+    const num_sum = result[0] + result[1] + result[2] + result[3] + result[4];
+    // num_sum_sec
+    let num_sum_sec = 'L';
+    if(num_sum >= 15 && num_sum <= 64) {
+      num_sum_sec = 'S';
+    }
+    else if(num_sum >= 65 && num_sum <= 80) {
+      num_sum_sec = 'M';
+    }
 
-    //return this.drawResultsService.update(updateDrawResultDto.id, updateDrawResultDto);
+    const num_sum_odd = (num_sum % 2 == 0) ? 'E': 'O';
+    const pb_odd = (result[5] % 2 == 0) ? 'E': 'O';
+
+    // Date constraints..
+    const date_now = new Date;
+    const modify_date = moment(new Date(date_now.getTime() + parseInt(process.env.GAME_TIMER_SETTING) * 60000)).tz(process.env.APP_TIMEZONE);
+    const account_date = moment(new Date(date_now.getTime() + 2 * 60000)).tz(process.env.APP_TIMEZONE); // TODO..
+    const data = {
+      'num1': result[0].toString(),
+      'num2': result[1].toString(),
+      'num3': result[2].toString(),
+      'num4': result[3].toString(),
+      'num5': result[4].toString(),
+      'pb': result[5].toString(),
+      'num_sum': num_sum.toString(),
+      'num_sum_sec': num_sum_sec.toString(),
+      'num_sum_odd': num_sum_odd.toString(),
+      'pb_odd': pb_odd.toString(),
+      'modifydate': modify_date.format('YYYY-MM-DD HH:mm:00'), // after animation ends in FE
+      'accountdate': account_date.format('YYYY-MM-DD HH:mm:00')
+    };
+    
+    const updated = await this.drawResultsService.update(this.last_inserted_id, data);
+
+    console.log(updated);
+    return updated;
   }
 
   @SubscribeMessage('findAllDrawResults')

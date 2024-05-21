@@ -21,6 +21,7 @@ import { Global, Module } from '@nestjs/common';
             entities: [__dirname + '/../**/*.entity.{js,ts}'],
             synchronize: false, //use this with development environment
             options: { encrypt: false },
+            logging: (process.env.APP_ENV == 'development') ? true: false,
           });
           await dataSource.initialize(); // initialize the data source
           console.log('Database connected successfully');
