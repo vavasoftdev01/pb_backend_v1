@@ -4,7 +4,7 @@ import { CreateDrawResultDto } from './dto/create-draw-result.dto';
 import { UpdateDrawResultDto } from './dto/update-draw-result.dto';
 import { Server } from 'socket.io';
 import { OnEvent } from '@nestjs/event-emitter';
-import * as moment from "moment-timezone";
+import * as moment from 'moment-timezone';
 
 
 @WebSocketGateway({
@@ -45,7 +45,7 @@ export class DrawResultsGateway {
 
     const data = {
       'game': process.env.APP_NAME,
-      'id': cont['id'] + 1,
+      'id': (Object.keys(cont).length > 0) ? cont['id'] + 1 : 1,
       'round': round_number - 1,
       'dt': date_now.format('YYYY-MM-DD'),
       'sdate': String(date_now.format('HH:mm:00')),
