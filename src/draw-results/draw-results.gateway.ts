@@ -32,13 +32,12 @@ export class DrawResultsGateway {
     const sequence_fields = await this.drawResultsService.getLastSequenceId();
     sequence_fields.map((result) => {
       cont = { 'id': result.id }
-    })
+    });
+
+    const date_now = moment(new Date()).tz(process.env.APP_TIMEZONE);
 
     // Round - (round)
-    const date_now = moment(new Date()).tz(process.env.APP_TIMEZONE);
-    const minutesInDay = date_now.hours() * 60 + date_now.minutes() / parseInt(process.env.GAME_TIMER_SETTING);
-    const round_number = Math.trunc((1440 - Math.round(minutesInDay)) / parseInt(process.env.GAME_TIMER_SETTING));
-
+    const round_number = this.getRound();
     // End date - (edate) add 3 minutes for pb_timer settings..
     const date = new Date();
     const end_date = moment(new Date(date.getTime() + parseInt(process.env.GAME_TIMER_SETTING) * 60000)).tz(process.env.APP_TIMEZONE);
@@ -46,7 +45,7 @@ export class DrawResultsGateway {
     const data = {
       'game': process.env.APP_NAME,
       'id': (Object.keys(cont).length > 0) ? cont['id'] + 1 : 1,
-      'round': round_number - 1,
+      'round': round_number,
       'dt': date_now.format('YYYY-MM-DD'),
       'sdate': String(date_now.format('HH:mm:00')),
       'edate': String(end_date.format('HH:mm:00')),
@@ -56,8 +55,14 @@ export class DrawResultsGateway {
     this.last_inserted_id = await this.drawResultsService.create(data);
   }
 
+  private getRound() {
+    const date_now = moment.tz('Asia/Seoul');
+    const zero = date_now.clone().startOf('day');
+    const time = date_now.diff(zero, 'second') - 0;
+    return Math.floor(time / parseInt(process.env.GAME_TIMER_LIMIT)) + 1;
+  }
 
-  @OnEvent('update.insert-results')
+  @OnEvent('update.draw-results')
   async update(@MessageBody() updateDrawResultDto: UpdateDrawResultDto) {
     const result = await this.drawResultsService.generateResults(5, 29, 1, 9);
     const num_sum = result[0] + result[1] + result[2] + result[3] + result[4];
@@ -75,8 +80,8 @@ export class DrawResultsGateway {
 
     // Date constraints..
     const date_now = new Date;
-    const modify_date = moment(new Date(date_now.getTime() + parseInt(process.env.GAME_TIMER_SETTING) * 60000)).tz(process.env.APP_TIMEZONE);
-    const account_date = moment(new Date(date_now.getTime() + 2 * 60000)).tz(process.env.APP_TIMEZONE); // TODO..
+    const modify_date = moment(new Date(date_now.getTime() + 0 * 60000)).tz(process.env.APP_TIMEZONE);
+    const account_date = moment(new Date(date_now.getTime() + 0 * 60000)).tz(process.env.APP_TIMEZONE); // TODO..
     const data = {
       'num1': result[0].toString(),
       'num2': result[1].toString(),
@@ -88,9 +93,11 @@ export class DrawResultsGateway {
       'num_sum_sec': num_sum_sec.toString(),
       'num_sum_odd': num_sum_odd.toString(),
       'pb_odd': pb_odd.toString(),
-      'modifydate': modify_date.format('YYYY-MM-DD HH:mm:00'), // after animation ends in FE
-      'accountdate': account_date.format('YYYY-MM-DD HH:mm:00')
+      'modifydate': modify_date.format('YYYY-MM-DD HH:mm:ss:00'), // after animation ends in FE result must be released in advance
+      //'accountdate': account_date.format('YYYY-MM-DD HH:mm:00') // TODO: This column is used to enter the settlement date after betting
     };
+
+    console.log(data)
     
     const updated = await this.drawResultsService.update(this.last_inserted_id, data);
 
