@@ -75,6 +75,10 @@ export class DrawResultsService {
     return `This action returns a #${id} drawResult`;
   }
 
+  async findOneBy(params) {
+    return await this.resultRepository.findOneBy(params);
+  }
+
   /**
    * 
    * @param id 
@@ -89,7 +93,7 @@ export class DrawResultsService {
       .where("idx = :idx", { idx: idx })
       .execute();
 
-    return updated;
+    return updated['edate'];
 
   }
 

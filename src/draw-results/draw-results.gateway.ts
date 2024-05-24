@@ -96,14 +96,21 @@ export class DrawResultsGateway {
       'modifydate': modify_date.format('YYYY-MM-DD HH:mm:ss:00'), // after animation ends in FE result must be released in advance
       //'accountdate': account_date.format('YYYY-MM-DD HH:mm:00') // TODO: This column is used to enter the settlement date after betting
     };
-
-    console.log(data)
-    console.log(process.env.APP_TIMEZONE)
     
     const updated = await this.drawResultsService.update(this.last_inserted_id, data);
 
-    console.log(updated);
+    this.getResults();
+
     return updated;
+  }
+
+  /**
+   * Emitter for FE
+   */
+  @SubscribeMessage('findAllDrawResults')
+  async getResults() {
+    const results = await this.drawResultsService.findOneBy({'idx': this.last_inserted_id});
+    this.server.emit('send', results);
   }
 
   @SubscribeMessage('findAllDrawResults')
