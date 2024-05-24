@@ -62,7 +62,7 @@ export class DrawResultsGateway {
     return Math.floor(time / parseInt(process.env.GAME_TIMER_LIMIT)) + 1;
   }
 
-  @OnEvent('update.draw-results')
+  @OnEvent('update.draw-results', { async: true })
   async update(@MessageBody() updateDrawResultDto: UpdateDrawResultDto) {
     const result = await this.drawResultsService.generateResults(5, 29, 1, 9);
     const num_sum = result[0] + result[1] + result[2] + result[3] + result[4];
@@ -80,7 +80,7 @@ export class DrawResultsGateway {
 
     // Date constraints..
     const date_now = new Date;
-    const modify_date = moment(new Date(date_now.getTime() + 0 * 60000)).tz(process.env.APP_TIMEZONE);
+    const modify_date = moment().tz(process.env.APP_TIMEZONE);
     const account_date = moment(new Date(date_now.getTime() + 0 * 60000)).tz(process.env.APP_TIMEZONE); // TODO..
     const data = {
       'num1': result[0].toString(),
@@ -98,6 +98,7 @@ export class DrawResultsGateway {
     };
 
     console.log(data)
+    console.log(process.env.APP_TIMEZONE)
     
     const updated = await this.drawResultsService.update(this.last_inserted_id, data);
 

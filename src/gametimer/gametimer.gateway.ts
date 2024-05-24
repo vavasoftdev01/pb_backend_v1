@@ -18,9 +18,13 @@ export class GametimerGateway implements OnGatewayInit {
   private readonly betting_closed_time_limit = parseInt(process.env.GAME_TIMER_BETTING_CLOSED);
   private readonly draw_result_time_limit = parseInt(process.env.GAME_TIMER_DRAW_RESULT);
 
-  timer_status: string = 'betting_open'; //Timer State
+  timer_status: string = 'betting_open';
   dynamic_timer: number;
-  advance_draw: boolean;
+  advance_draw: boolean = true;
+  insert_initial: boolean = true;
+  advance_draw_execution_time_increments: number = 10;
+  advance_draw_execution_time: number = 10; // seconds ahead
+  advance_draw_execution_time_limit: number = 50; // seconds before the reset to advance_draw_execution_time.
 
   constructor(private readonly gametimerService: GametimerService, private eventEmitter: EventEmitter2) {}
 
@@ -31,12 +35,12 @@ export class GametimerGateway implements OnGatewayInit {
   start(time_limit) {
     let timer = time_limit;
     let running_timer = setInterval(() => {
-        timer -=1;
+        timer -= 1;
         this.dynamic_timer = timer;
         let formatted_time = new Date(timer * 1000).toISOString().substring(14, 19)
         this.server.emit('timerStart', {'formatted_time':formatted_time, 'timer': timer, 'time_limit': time_limit, 'timer_status': this.timer_status });
 
-        if(this.dynamic_timer < 5) {
+        if(this.dynamic_timer < this.advance_draw_execution_time) {
           this.advanceDraw();
         }
         
@@ -45,12 +49,19 @@ export class GametimerGateway implements OnGatewayInit {
 
   }
 
+  /**
+   * This method prevents drawing result later than a minute vs the edate.
+   * It SHOULD always draw earlier or within the edate.
+   * advance_draw = ensures that the query will run once per scenario.
+   */
   private advanceDraw() {
     // Advance draw
-    if(this.timer_status == 'betting_closed' && this.advance_draw) {
-      console.log(`advancing updates ${this.dynamic_timer} -- ${this.advance_draw}`);
+    if(this.timer_status == 'betting_open' && this.advance_draw) {
       this.eventEmitter.emit('update.draw-results');
       this.advance_draw = false;
+      this.advance_draw_execution_time = (this.advance_draw_execution_time >= this.advance_draw_execution_time_limit) ? 
+        this.advance_draw_execution_time 
+        : this.advance_draw_execution_time + this.advance_draw_execution_time_increments;
     }
   }
 
@@ -83,6 +94,12 @@ export class GametimerGateway implements OnGatewayInit {
           this.start(this.betting_closed_time_limit)
         break;
       }
+    } else {
+      // This method will only run once, every time the web server restarts.. since the emmitter has issue on afterinit..
+        if(this.timer_status == 'betting_open' && this.insert_initial) {
+          this.eventEmitter.emit('insert.inital-results');
+          this.insert_initial = false;
+        }
     }
 
     console.log(`timer status :${this.timer_status}`);
