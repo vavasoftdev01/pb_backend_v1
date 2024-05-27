@@ -17,15 +17,15 @@ export class GametimerGateway implements OnGatewayInit {
   private readonly betting_open_time_limit = parseInt(process.env.GAME_TIMER_BETTING_OPEN);
   private readonly betting_closed_time_limit = parseInt(process.env.GAME_TIMER_BETTING_CLOSED);
   private readonly draw_result_time_limit = parseInt(process.env.GAME_TIMER_DRAW_RESULT);
+  
+  advance_draw_execution_time_increments: number = 5;
+  advance_draw_execution_time: number = 5; // seconds ahead
+  advance_draw_execution_time_limit: number = 50; // seconds before the reset to advance_draw_execution_time.
 
   timer_status: string = 'betting_open';
   dynamic_timer: number;
   advance_draw: boolean = true;
   insert_initial: boolean = true;
-  
-  advance_draw_execution_time_increments: number = 10;
-  advance_draw_execution_time: number = 20; // seconds ahead
-  advance_draw_execution_time_limit: number = 50; // seconds before the reset to advance_draw_execution_time.
 
 
   constructor(private readonly gametimerService: GametimerService, private eventEmitter: EventEmitter2) {}
