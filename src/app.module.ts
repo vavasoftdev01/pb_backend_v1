@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 import { GametimerModule } from './gametimer/gametimer.module';
 import { DrawResultsModule } from './draw-results/draw-results.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { StatisticsModule } from './statistics/statistics.module';
 
 @Module({
   imports: [
@@ -15,7 +16,8 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
     ResultsModule,
     TypeOrmModule,
     GametimerModule,
-    DrawResultsModule 
+    DrawResultsModule,
+    StatisticsModule 
   ],
   controllers: [AppController],
   providers: [AppService],

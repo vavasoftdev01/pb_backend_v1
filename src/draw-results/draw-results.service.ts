@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateDrawResultDto } from './dto/create-draw-result.dto';
 import { UpdateDrawResultDto } from './dto/update-draw-result.dto';
 import { DrawResult } from './entities/draw-result.entity';
-import { DataSource  } from 'typeorm';
+import { Between, DataSource, MoreThanOrEqual  } from 'typeorm';
 
 @Injectable()
 export class DrawResultsService {
@@ -69,6 +69,14 @@ export class DrawResultsService {
 
   findAll() {
     return `Retireve all drawResult`;
+  }
+
+  async getStatistics(filters) {
+    const data = await this.resultRepository.findBy({
+      modifydate: Between(filters.start ,filters.end)
+    })
+
+    return data;
   }
 
   findOne(id: number) {
