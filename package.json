@@ -29,6 +29,7 @@
     "@nestjs/platform-socket.io": "^10.3.8",
     "@nestjs/typeorm": "^10.0.2",
     "@nestjs/websockets": "^10.3.8",
+    "collect.js": "^4.36.1",
     "lodash": "^4.17.21",
     "moment": "^2.30.1",
     "moment-timezone": "^0.5.45",

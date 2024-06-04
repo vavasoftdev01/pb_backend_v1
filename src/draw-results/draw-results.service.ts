@@ -73,7 +73,7 @@ export class DrawResultsService {
 
   async getStatistics(filters) {
     const data = await this.resultRepository.findBy({
-      modifydate: Between(filters.start ,filters.end)
+      modifydate: Between(filters.start ,filters.end),
     })
 
     return data;
