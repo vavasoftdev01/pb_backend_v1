@@ -15,7 +15,7 @@ export class StatisticsGateway {
 
   constructor(private readonly statisticsService: StatisticsService) {}
 
-  @SubscribeMessage('findAllStatistics')
+  @SubscribeMessage('findDailyStatistics')
   async findAll() {
     const data = await this.statisticsService.findAll();
 
