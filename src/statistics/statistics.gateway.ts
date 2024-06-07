@@ -43,7 +43,7 @@ export class StatisticsGateway {
 
     return results;
   }
-
+  // TODO: for refactor..
   @SubscribeMessage('getDailyPBStatistics')
   async getDailyPBStatitistics() {
     const data = await this.statisticsService.findAll();
@@ -83,17 +83,42 @@ export class StatisticsGateway {
       results.push(container);
     }
 
-      collect(results).map((result) => {
-        if(result.length > 1) {
-          streakCounter = streakCounter + 1
+    let evenStreakCount = 0;
+    let evenStreakContainer = [];
+    let oddStreakCount = 0;
+    let oddStreakContainer = [];
+
+    collect(results).map((result) => {
+      if(result.length > 1) {
+        streakCounter = streakCounter + 1
+
+        if(result.length > evenStreakCount) {
+          
+          if(result[0]['pb_odd'] == 'E') {
+            evenStreakCount = 0;
+            evenStreakContainer = [];
+            evenStreakContainer.push(result);
+            evenStreakCount = result.length;
+          }
+
+          oddStreakCount = 0;
+          oddStreakContainer = [];
+          oddStreakContainer.push(result);
+          evenStreakCount = result.length;        
         }
-        nonStreakCounter = nonStreakCounter + 1
-      });
+    
+      }
+      nonStreakCounter = nonStreakCounter + 1
+    });
 
     return [
       {
-        'streak_count': streakCounter,
-        'non_streak_count': nonStreakCounter,
+        'streak': {
+          'streak_count': streakCounter,
+          'non_streak_count': nonStreakCounter,
+          'even_streak_count': evenStreakContainer,
+          'odd_streak_count': oddStreakContainer
+        },
         'even_count': evenOddOverUnderCounter,
         'total_results': data.length,
         'results': results
