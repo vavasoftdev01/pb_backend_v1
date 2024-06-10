@@ -89,26 +89,30 @@ export class StatisticsGateway {
     let oddStreakContainer = [];
 
     collect(results).map((result) => {
+
       if(result.length > 1) {
-        streakCounter = streakCounter + 1
+        streakCounter = streakCounter + 1;
 
-        if(result.length > evenStreakCount) {
-          
-          if(result[0]['pb_odd'] == 'E') {
-            evenStreakCount = 0;
-            evenStreakContainer = [];
-            evenStreakContainer.push(result);
-            evenStreakCount = result.length;
-          }
+        if(result.length > evenStreakCount && result[0]['pb_odd'] == 'E') {
+          evenStreakCount = 0;
+          evenStreakContainer = [];
+          evenStreakContainer.push(result);
+          evenStreakCount = result.length;
+        }
 
-          oddStreakCount = 0;
+        if(result.length > oddStreakCount && result[0]['pb_odd'] == 'O') {
           oddStreakContainer = [];
           oddStreakContainer.push(result);
-          evenStreakCount = result.length;        
+          oddStreakCount = result.length;
+                 
         }
-    
+      } 
+      
+      if(result.length == 1) {
+        console.log(result)
+        nonStreakCounter = nonStreakCounter + 1
       }
-      nonStreakCounter = nonStreakCounter + 1
+      
     });
 
     return [
