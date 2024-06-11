@@ -109,11 +109,16 @@ export class StatisticsGateway {
       } 
       
       if(result.length == 1) {
-        console.log(result)
         nonStreakCounter = nonStreakCounter + 1
       }
       
     });
+
+    let modified_results = collect(results).map((item) => {
+      let pb_odd = (item[0]['pb_odd'] == 'E') ? 'EVEN': 'ODD';
+      return { [pb_odd] : item }
+    });
+
 
     return [
       {
@@ -125,7 +130,7 @@ export class StatisticsGateway {
         },
         'even_count': evenOddOverUnderCounter,
         'total_results': data.length,
-        'results': results
+        'results': collect(modified_results)
       }
     ];
   }
