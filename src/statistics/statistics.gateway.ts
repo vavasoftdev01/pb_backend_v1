@@ -56,6 +56,37 @@ export class StatisticsGateway {
     let nonStreakCounter = 0;
 
 
+    collect(data).map((item) => {
+
+      // PB Over / Under
+      if(item['pb'] > 4.5) {
+        item['is_pb_under'] = true;
+      } else {
+        item['is_pb_under'] = false;
+      }
+
+      // PB section
+      switch (item['pb']) {
+        case 0 >= 2:
+          item['pb_section'] = 'A';
+          break;
+
+        case 3 >= 4:
+          item['pb_section'] = 'B';
+          break;
+
+        case 5 >= 6:
+          item['pb_section'] = 'C';
+          break;
+      
+        default:
+          item['pb_section'] = 'D';
+          break;
+      }
+ 
+    });
+
+
     for (let key in data) 
     {
         // Streak
@@ -104,7 +135,6 @@ export class StatisticsGateway {
           oddStreakContainer = [];
           oddStreakContainer.push(result);
           oddStreakCount = result.length;
-                 
         }
       } 
       
@@ -119,6 +149,44 @@ export class StatisticsGateway {
       return { [pb_odd] : item }
     });
 
+    let normalBallLargeCount = 0;
+    let normalBallLargeStreakContainer = [];
+    let normalBallMediumCount = 0;
+    let normalBallMediumStreakContainer = [];
+    let normalBallSmallCount = 0;
+    let normalBallSmallStreakContainer = [];
+    let normalBallPreviousValue = null;
+
+    // Normal ball streak
+    for (let key in data) 
+      {
+          // Streak
+          if (data[key]['num_sum_sec'] === normalBallPreviousValue) 
+          {
+            switch (data[key]['num_sum_sec']) {
+              case 'S':
+                normalBallSmallCount++; 
+                normalBallSmallStreakContainer.push(data[key]);
+                break;
+
+              case 'M':
+                normalBallMediumCount++;
+                normalBallMediumStreakContainer.push(data[key]);
+                break;
+            
+              default:
+                normalBallLargeCount++;
+                normalBallLargeStreakContainer.push(data[key]);
+                break;
+            }
+            //evenOddOverUnderCounter = (data[key]['pb_odd'] === 'E') ? evenOddOverUnderCounter + 1 : evenOddOverUnderCounter;   
+          } 
+
+
+          normalBallPreviousValue = data[key]['num_sum_sec'];
+      }
+
+    
 
     return [
       {
@@ -126,10 +194,17 @@ export class StatisticsGateway {
           'streak_count': streakCounter,
           'non_streak_count': nonStreakCounter,
           'even_streak_count': evenStreakContainer,
-          'odd_streak_count': oddStreakContainer
+          'odd_streak_count': oddStreakContainer,
+          'normal_ball_large_streak_count': normalBallLargeStreakContainer,
+          'normal_ball_medium_streak_count': normalBallMediumStreakContainer,
+          'normal_ball_small_streak_count': normalBallSmallStreakContainer,
+        },
+        'normal_ball_results': {
+          'normal_ball_large_count': normalBallLargeCount,
+          'normal_ball_medium_count': normalBallMediumCount,
+          'normal_ball_small_count': normalBallSmallCount,
         },
         'even_count': evenOddOverUnderCounter,
-        'total_results': data.length,
         'results': collect(modified_results)
       }
     ];

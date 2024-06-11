@@ -76,9 +76,9 @@ export class DrawResultsService {
       where: {
         modifydate: Between(filters.start ,filters.end)
       },
-      select: ['idx', 'round', 'pb', 'pb_odd', 'num_sum', 'num_sum_sec', 'num_sum_odd', 'modifydate']
+      select: ['idx', 'round', 'pb', 'num1', 'num2', 'num3', 'num4', 'num5', 'pb_odd', 'num_sum', 'num_sum_sec', 'num_sum_odd', 'modifydate']
     });
-
+   
     return data;
   }
 
