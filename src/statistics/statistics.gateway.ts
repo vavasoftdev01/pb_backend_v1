@@ -55,15 +55,9 @@ export class StatisticsGateway {
     let streakCounter = 0;
     let nonStreakCounter = 0;
 
-
     collect(data).map((item) => {
-
       // PB Over / Under
-      if(item['pb'] > 4.5) {
-        item['is_pb_under'] = true;
-      } else {
-        item['is_pb_under'] = false;
-      }
+      item['is_pb_under'] = (item['pb'] < 4.5) ? true: false;
 
       // PB section
       switch (item['pb']) {
@@ -83,7 +77,8 @@ export class StatisticsGateway {
           item['pb_section'] = 'D';
           break;
       }
- 
+      // num_sum_under Over / Under
+      item['is_num_sum_under'] = (item['num_sum'] < 72.5) ? true: false; 
     });
 
 
