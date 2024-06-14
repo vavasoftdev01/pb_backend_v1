@@ -151,6 +151,12 @@ export class StatisticsGateway {
     let normalBallSmallCount = 0;
     let normalBallSmallStreakContainer = [];
     let normalBallPreviousValue = null;
+    let normalBallUnderCount = 0;
+    let normalBallOverCount = 0;
+    let normalBallOddCount = 0;
+    let normalBallEvenCount = 0;
+    let pBUnderCount = 0;
+    let pBOverCount = 0;
 
     // Normal ball streak
     for (let key in data) 
@@ -174,10 +180,11 @@ export class StatisticsGateway {
                 normalBallLargeStreakContainer.push(data[key]);
                 break;
             }
-            //evenOddOverUnderCounter = (data[key]['pb_odd'] === 'E') ? evenOddOverUnderCounter + 1 : evenOddOverUnderCounter;   
           } 
 
-
+          (data[key]['num_sum'] < 72.5) ? normalBallUnderCount++ : normalBallOverCount++;
+          (data[key]['num_sum_odd'] == 'E') ? normalBallEvenCount++ : normalBallOddCount++;
+          (data[key]['pb'] < 4.5) ? pBUnderCount++ : pBOverCount++;
           normalBallPreviousValue = data[key]['num_sum_sec'];
       }
 
@@ -198,8 +205,15 @@ export class StatisticsGateway {
           'normal_ball_large_count': normalBallLargeCount,
           'normal_ball_medium_count': normalBallMediumCount,
           'normal_ball_small_count': normalBallSmallCount,
+          'normal_ball_over_count': normalBallOverCount,
+          'normal_ball_under_count': normalBallUnderCount,
+          'normal_ball_even_count': normalBallEvenCount,
+          'normal_ball_odd_count': normalBallOddCount,
         },
         'even_count': evenOddOverUnderCounter,
+        'under_count': pBUnderCount,
+        'over_count': pBOverCount,
+        'results_count': collect(data).count(),
         'results': collect(modified_results)
       }
     ];
