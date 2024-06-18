@@ -166,21 +166,22 @@ export class StatisticsGateway {
           {
             switch (data[key]['num_sum_sec']) {
               case 'S':
-                normalBallSmallCount++; 
                 normalBallSmallStreakContainer.push(data[key]);
                 break;
 
               case 'M':
-                normalBallMediumCount++;
                 normalBallMediumStreakContainer.push(data[key]);
                 break;
             
               default:
-                normalBallLargeCount++;
                 normalBallLargeStreakContainer.push(data[key]);
                 break;
             }
-          } 
+          }
+
+          (data[key]['num_sum_sec'] == 'S') ? normalBallSmallCount++ : normalBallSmallCount;
+          (data[key]['num_sum_sec'] == 'M') ? normalBallMediumCount++ : normalBallMediumCount;
+          (data[key]['num_sum_sec'] == 'L') ? normalBallLargeCount++ : normalBallLargeCount;
 
           (data[key]['num_sum'] < 72.5) ? normalBallUnderCount++ : normalBallOverCount++;
           (data[key]['num_sum_odd'] == 'E') ? normalBallEvenCount++ : normalBallOddCount++;
