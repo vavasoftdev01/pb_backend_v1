@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateDrawResultDto } from './dto/create-draw-result.dto';
 import { UpdateDrawResultDto } from './dto/update-draw-result.dto';
 import { DrawResult } from './entities/draw-result.entity';
-import { Between, DataSource, MoreThanOrEqual  } from 'typeorm';
+import { Between, DataSource, MoreThanOrEqual, IsNull, Not  } from 'typeorm';
 
 @Injectable()
 export class DrawResultsService {
@@ -74,7 +74,8 @@ export class DrawResultsService {
   async getStatistics(filters) {
     const data = await this.resultRepository.find({
       where: {
-        modifydate: Between(filters.start ,filters.end)
+        modifydate: Between(filters.start ,filters.end),
+        pb: Not(IsNull())
       },
       select: ['idx', 'round', 'pb', 'num1', 'num2', 'num3', 'num4', 'num5', 'pb_odd', 'num_sum', 'num_sum_sec', 'num_sum_odd', 'modifydate']
     });

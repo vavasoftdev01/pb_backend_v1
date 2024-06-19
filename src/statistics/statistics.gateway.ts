@@ -84,23 +84,23 @@ export class StatisticsGateway {
 
     for (let key in data) 
     {
-        // Streak
-        if (data[key]['pb_odd'] === previousValue) 
-        {
-            container.push(data[key]);
-            evenOddOverUnderCounter = (data[key]['pb_odd'] === 'E') ? evenOddOverUnderCounter + 1 : evenOddOverUnderCounter;   
-        } 
-        else 
-        {
-          // Non-streak
-            if (container.length > 0) {
-                results.push(container);
-                container = [];
-                
-            }
+      evenOddOverUnderCounter = (data[key]['pb_odd'] === 'E') ? evenOddOverUnderCounter + 1 : evenOddOverUnderCounter;
+      // Streak
+      if (data[key]['pb_odd'] === previousValue) 
+      {
+          container.push(data[key]);   
+      } 
+      else 
+      {
+        // Non-streak
+          if (container.length > 0) {
+              results.push(container);
+              container = [];
+              
+          }
 
-            container.push(data[key]);
-        }
+          container.push(data[key]);
+      }
 
       previousValue = data[key]['pb_odd'];
     }
