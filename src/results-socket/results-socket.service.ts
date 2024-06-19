@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, IsNull, Not } from 'typeorm';
 import { ResultsSocket } from './entities/results-socket.entity';
-import { notEqual } from 'assert';
 
 @Injectable()
 export class ResultsSocketService {
@@ -10,8 +9,15 @@ export class ResultsSocketService {
     this.resultRepository = this.dataSource.getRepository(ResultsSocket)
   }
 
-  findAll() {
-    return `This action returns all resultsSocket`;
+  async getAllResults() {
+    const data = await this.dataSource
+      .getRepository(ResultsSocket)
+      .createQueryBuilder("results")
+      .where('pb IS NOT NULL')
+      .orderBy("idx", "DESC")
+      .getCount();
+   
+    return data;
   }
 
   findOne(id: number) {
@@ -24,9 +30,9 @@ export class ResultsSocketService {
       .createQueryBuilder("results")
       .where('pb IS NOT NULL')
       .orderBy("idx", "DESC")
-      .offset(params.offset)
-      .limit(params.limit)
-      .getMany()
+      .take(params.limit)
+      .skip(params.offset)
+      .getMany();
    
     return data;
   }

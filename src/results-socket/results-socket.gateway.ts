@@ -16,7 +16,16 @@ export class ResultsSocketGateway {
 
   @SubscribeMessage('getPaginatedResults')
   async getAllResults(@MessageBody() params: {}) {
-    return await this.resultsSocketService.getPaginatedResults(params);
+    const total = await this.resultsSocketService.getAllResults();
+    const results = await this.resultsSocketService.getPaginatedResults(params);
+
+    return {
+      'limit': params['limit'],
+      'offset': params['offset'],
+      'total_results': (total) ? Math.ceil(total / params['limit']) : 0,
+      'results': (results) ? results: []
+    }
+    
   }
 
   @SubscribeMessage('findOneResultsSocket')
