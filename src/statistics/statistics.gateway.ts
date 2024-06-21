@@ -150,7 +150,7 @@ export class StatisticsGateway {
       let key = item[0][`${type}`];
 
       if(type == 'pb_odd') {
-        container = (key == 'E') ? 'PB_EVEN': 'PB_ODD';
+        container = (key == 'E') ? 'EVEN': 'ODD';
       }
 
       if(type == 'num_sum_odd') {
