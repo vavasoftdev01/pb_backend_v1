@@ -16,7 +16,7 @@ export class StatisticsGateway {
 
   @SubscribeMessage('findDailyStatistics')
   async findAll() {
-    const data = await this.statisticsService.findAll();
+    const data = await this.statisticsService.findAll({});
 
     let results = [];
     let previousValue = null;
@@ -43,9 +43,13 @@ export class StatisticsGateway {
     return results;
   }
   // TODO: for refactor..
-  @SubscribeMessage('getDailyPBStatistics')
-  async getDailyPBStatitistics() {
-    const data = await this.statisticsService.findAll();
+  @SubscribeMessage('getStatistics')
+  async getDailyPBStatitistics(@MessageBody() params: {}) {
+    const filters = collect(params);
+    let type = filters.get('type');
+    const dateFilters = filters.forget('type');
+    const data = await this.statisticsService.findAll(dateFilters);
+    
 
     let results = [];
     let previousValue = null;
@@ -84,8 +88,11 @@ export class StatisticsGateway {
     for (let key in data) 
     {
       evenOddOverUnderCounter = (data[key]['pb_odd'] === 'E') ? evenOddOverUnderCounter + 1 : evenOddOverUnderCounter;
+
+      let value = data[key][`${type}`];
+
       // Streak
-      if (data[key]['pb_odd'] === previousValue) 
+      if (value === previousValue) 
       {
           container.push(data[key]);   
       } 
@@ -101,7 +108,7 @@ export class StatisticsGateway {
           container.push(data[key]);
       }
 
-      previousValue = data[key]['pb_odd'];
+      previousValue = value;
     }
     
     if (container.length > 0) {
@@ -139,8 +146,22 @@ export class StatisticsGateway {
     });
 
     let modified_results = collect(results).map((item) => {
-      let pb_odd = (item[0]['pb_odd'] == 'E') ? 'EVEN': 'ODD';
-      return { [pb_odd] : item }
+      let container;
+      let key = item[0][`${type}`];
+
+      if(type == 'pb_odd') {
+        container = (key == 'E') ? 'PB_EVEN': 'PB_ODD';
+      }
+
+      if(type == 'num_sum_odd') {
+        container = (key == 'E') ? 'NM_EVEN': 'NM_ODD';
+      }
+
+      if(type == 'is_pb_under' || type == 'is_num_sum_under') {
+        container = (key == true) ? 'UNDER': 'OVER';
+      }
+
+      return { [container] : item }
     });
 
     let normalBallLargeCount = 0;

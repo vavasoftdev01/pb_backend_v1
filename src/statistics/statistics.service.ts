@@ -8,13 +8,8 @@ export class StatisticsService {
 
   constructor(private readonly statService: StatService) {}
 
-  async findAll() {
-    const filters = {
-      'start': moment().tz(process.env.APP_TIMEZONE).subtract(1, 'day').format('YYYY-MM-DD HH:mm:ss'),
-      'end': moment().tz(process.env.APP_TIMEZONE).format('YYYY-MM-DD HH:mm:ss')
-    }
+  async findAll(filters) {
     const results = await this.statService.getStatistics(filters);
-
     return results;
   }
 
