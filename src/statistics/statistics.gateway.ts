@@ -6,8 +6,7 @@ import collect from 'collect.js';
 @WebSocketGateway({
   cors: {
     origin: '*'
-  },
-  namespace: 'statistics'
+  }
 })
 export class StatisticsGateway {
   @WebSocketServer()
