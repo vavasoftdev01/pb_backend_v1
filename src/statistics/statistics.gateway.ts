@@ -60,7 +60,7 @@ export class StatisticsGateway {
 
     collect(data).map((item) => {
       // PB Over / Under
-      item['is_pb_under'] = (item['pb'] < 4.5) ? true: false;
+      item['is_pb_under'] = (item['pb'] <= 4.5) ? 'Y': 'N';
 
       // PB section
       switch (item['pb']) {
@@ -81,7 +81,7 @@ export class StatisticsGateway {
           break;
       }
       // num_sum_under Over / Under
-      item['is_num_sum_under'] = (item['num_sum'] < 72.5) ? true: false; 
+      item['is_num_sum_under'] = (item['num_sum'] < 72.5) ? 'Y': 'N'; 
     });
 
 
@@ -119,6 +119,14 @@ export class StatisticsGateway {
     let evenStreakContainer = [];
     let oddStreakCount = 0;
     let oddStreakContainer = [];
+    let pbUnderStreakCount = 0;
+    let pbUnderStreakContainer = [];
+    let pbOverStreakCount = 0;
+    let pbOverStreakContainer = [];
+    let normalBallUnderStreakCount = 0;
+    let normalBallUnderStreakContainer = [];
+    let normalBallOverStreakCount = 0;
+    let normalBallOverStreakContainer = [];
 
     collect(results).map((result) => {
 
@@ -137,6 +145,21 @@ export class StatisticsGateway {
           oddStreakContainer.push(result);
           oddStreakCount = result.length;
         }
+
+        if(result.length > 1 && result[0]['is_pb_under'] == 'Y') {
+          pbUnderStreakCount = 0;
+          pbUnderStreakContainer = [];
+          pbUnderStreakContainer.push(result);
+          pbUnderStreakCount = result.length;
+        }
+
+        if(result.length > 1 && result[0]['is_pb_under'] == 'N') {
+          pbOverStreakCount = 0;
+          pbOverStreakContainer = [];
+          pbOverStreakContainer.push(result);
+          pbOverStreakCount = result.length;
+        }
+
       } 
       
       if(result.length == 1) {
@@ -157,8 +180,12 @@ export class StatisticsGateway {
         container = (key == 'E') ? 'NM_EVEN': 'NM_ODD';
       }
 
-      if(type == 'is_pb_under' || type == 'is_num_sum_under') {
-        container = (key == true) ? 'UNDER': 'OVER';
+      if(type == 'is_pb_under') {
+        container = (key == 'N') ? 'UNDER': 'OVER';
+      }
+
+      if(type == 'is_num_sum_under') {
+        container = (key == 'N') ? 'UNDER': 'OVER';
       }
 
       return { [container] : item }
@@ -209,8 +236,6 @@ export class StatisticsGateway {
           normalBallPreviousValue = data[key]['num_sum_sec'];
       }
 
-    
-
     return [
       {
         'streak': {
@@ -221,6 +246,11 @@ export class StatisticsGateway {
           'normal_ball_large_streak_count': normalBallLargeStreakContainer,
           'normal_ball_medium_streak_count': normalBallMediumStreakContainer,
           'normal_ball_small_streak_count': normalBallSmallStreakContainer,
+          'pb_under_streak_count': pbUnderStreakContainer,
+          'pb_over_streak_count': pbOverStreakContainer,
+          'normal_ball_under_streak_count': normalBallUnderStreakCount,
+          'normal_ball_over_streak_count': normalBallOverStreakCount,
+
         },
         'normal_ball_results': {
           'normal_ball_large_count': normalBallLargeCount,
