@@ -57,11 +57,22 @@ export class StatisticsGateway {
     let evenOddOverUnderCounter = 0;
     let streakCounter = 0;
     let nonStreakCounter = 0;
+    let underOddCount = 0;
+    let underEvenCount = 0;
+    let overOddCount = 0;
+    let overEvenCount = 0;
+    let underNumSumEven = 0;
+    let underNumSumOdd = 0;
+    let overNumSumEven = 0;
+    let overNumSumOdd = 0;
 
     collect(data).map((item) => {
       // PB Over / Under
       item['is_pb_under'] = (item['pb'] <= 4.5) ? 'Y': 'N';
-
+      (item['pb'] <= 4.5 && item['pb_odd'] == 'O') ? underOddCount++: underOddCount;
+      (item['pb'] <= 4.5 && item['pb_odd'] == 'E') ? underEvenCount++: underEvenCount;
+      (item['pb'] >= 4.5 && item['pb_odd'] == 'O') ? overOddCount++: overOddCount;
+      (item['pb'] >= 4.5 && item['pb_odd'] == 'E') ? overEvenCount++: overEvenCount;
       // PB section
       switch (item['pb']) {
         case 0 >= 2:
@@ -82,6 +93,10 @@ export class StatisticsGateway {
       }
       // num_sum_under Over / Under
       item['is_num_sum_under'] = (item['num_sum'] < 72.5) ? 'Y': 'N'; 
+      (item['num_sum'] <= 72.5 && item['num_sum_odd'] == 'O') ? underNumSumOdd++: underNumSumOdd;
+      (item['num_sum'] <= 72.5 && item['num_sum_odd'] == 'E') ? underNumSumEven++: underNumSumEven;
+      (item['num_sum'] >= 72.5 && item['num_sum_odd'] == 'O') ? overNumSumOdd++: overNumSumOdd;
+      (item['num_sum'] >= 72.5 && item['num_sum_odd'] == 'E') ? overNumSumEven++: overNumSumEven;
     });
 
 
@@ -181,11 +196,11 @@ export class StatisticsGateway {
       }
 
       if(type == 'is_pb_under') {
-        container = (key == 'N') ? 'UNDER': 'OVER';
+        container = (key == 'N') ? 'OVER': 'UNDER';
       }
 
       if(type == 'is_num_sum_under') {
-        container = (key == 'N') ? 'UNDER': 'OVER';
+        container = (key == 'N') ? 'OVER': 'UNDER';
       }
 
       return { [container] : item }
@@ -260,10 +275,18 @@ export class StatisticsGateway {
           'normal_ball_under_count': normalBallUnderCount,
           'normal_ball_even_count': normalBallEvenCount,
           'normal_ball_odd_count': normalBallOddCount,
+          'over_even_normal_ball_count': overNumSumEven,
+          'over_odd_normal_ball_count': overNumSumOdd,
+          'under_even_normal_ball_count': underNumSumEven,
+          'under_odd_normal_ball_count': underNumSumOdd,
         },
         'even_count': evenOddOverUnderCounter,
         'under_count': pBUnderCount,
         'over_count': pBOverCount,
+        'under_odd_count': underOddCount,
+        'under_even_count': underEvenCount,
+        'over_odd_count': overOddCount,
+        'over_even_count': overEvenCount,
         'results_count': collect(data).count(),
         'results': collect(modified_results)
       }

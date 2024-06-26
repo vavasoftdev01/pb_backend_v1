@@ -2,6 +2,7 @@ import { WebSocketGateway, SubscribeMessage, MessageBody, WebSocketServer } from
 import { ResultsSocketService } from './results-socket.service';
 import {Socket, Server} from 'socket.io';
 import collect from 'collect.js';
+import * as moment from 'moment-timezone';
 
 @WebSocketGateway({
   cors: {
@@ -17,8 +18,12 @@ export class ResultsSocketGateway {
 
   @SubscribeMessage('getPaginatedResults')
   async getAllResults(@MessageBody() params: {}) {
-    const total = await this.resultsSocketService.getAllResults();
-    const results = await this.resultsSocketService.getPaginatedResults(params);
+
+    const yesterday = moment().tz(process.env.APP_TIMEZONE).subtract(1, 'days').format('YYYY-MM-DD HH:mm:ss');
+    const today =  moment().tz(process.env.APP_TIMEZONE).format('YYYY-MM-DD HH:mm:ss');
+
+    const total = await this.resultsSocketService.getResultsByDate(yesterday, today);
+    const results = await this.resultsSocketService.getPaginatedResults(yesterday, today, params);
 
     collect(results).map((item) => {
       // PB Over / Under
@@ -70,7 +75,7 @@ export class ResultsSocketGateway {
     return {
       'limit': params['limit'],
       'offset': params['offset'],
-      'total_results': (total) ? Math.ceil(total / params['limit']) : 0,
+      'total_results': (total.length) ? Math.ceil(total.length / params['limit']) : 0,
       'results': (results) ? results: []
     }
     

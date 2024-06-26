@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, IsNull, Not } from 'typeorm';
+import { DataSource, IsNull, Not, Between } from 'typeorm';
 import { ResultsSocket } from './entities/results-socket.entity';
 
 @Injectable()
@@ -9,14 +9,15 @@ export class ResultsSocketService {
     this.resultRepository = this.dataSource.getRepository(ResultsSocket)
   }
 
-  async getAllResults() {
-    const data = await this.dataSource
-      .getRepository(ResultsSocket)
-      .createQueryBuilder("results")
-      .where('pb IS NOT NULL')
-      .orderBy("idx", "DESC")
-      .getCount();
-   
+  async getResultsByDate(startDate, endDate) {
+    const data = await this.resultRepository.find({
+      where: {
+        modifydate: Between(startDate ,endDate),
+        pb: Not(IsNull())
+      },
+      select: ['idx']
+    });
+    
     return data;
   }
 
@@ -24,16 +25,16 @@ export class ResultsSocketService {
     return `This action returns a #${id} resultsSocket`;
   }
 
-  async getPaginatedResults(params) {
-    const data = await this.dataSource
-      .getRepository(ResultsSocket)
-      .createQueryBuilder("results")
-      .where('pb IS NOT NULL')
-      .orderBy("idx", "DESC")
-      .take(params.limit)
-      .skip(params.offset)
-      .getMany();
-   
+  async getPaginatedResults(startDate, endDate, params) {
+    const data = await this.resultRepository.find({
+      where: {
+        modifydate: Between(startDate ,endDate),
+        pb: Not(IsNull())
+      },
+      skip: params.offset,
+      take: params.limit,
+    });
+      
     return data;
   }
 
